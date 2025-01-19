@@ -267,12 +267,12 @@
 </footer>
 
 <script>
-    // Example posts data
     const posts = Array.from({ length: 100 }, (_, i) => ({
         title: `Post Title ${i + 1}`,
         date: `2025-01-19`,
         author: `Author ${i + 1}`,
-        content: `This is a brief description for post ${i + 1}.`,
+        content: `This is the full content of post ${i + 1}. It contains more detailed information than the brief description.`,
+        brief: `This is a brief description for post ${i + 1}.`,
         image: `https://via.placeholder.com/800x400?text=Post+${i + 1}`
     }));
 
@@ -291,8 +291,8 @@
                 <div class="post-content">
                     <div class="post-title">${post.title}</div>
                     <div class="post-meta">Date: ${post.date} | Author: ${post.author}</div>
-                    <p>${post.content}</p>
-                    <a href="#" class="read-more">Read More</a>
+                    <p>${post.brief}</p>
+                    <button class="read-more" onclick="readMore(${posts.indexOf(post)})">Read More</button>
                 </div>
             </div>
         `).join('');
@@ -302,9 +302,13 @@
         const totalPages = Math.ceil(posts.length / postsPerPage);
         const paginationContainer = document.getElementById('pagination');
 
-        paginationContainer.innerHTML = Array.from({ length: totalPages }, (_, i) => `
-            <a href="#" onclick="changePage(${i + 1})">${i + 1}</a>
-        `).join('');
+        paginationContainer.innerHTML = `
+            <a href="#" onclick="changePage(1)">First</a>
+            ${Array.from({ length: totalPages }, (_, i) => `
+                <a href="#" onclick="changePage(${i + 1})">${i + 1}</a>
+            `).join('')}
+            <a href="#" onclick="changePage(${totalPages})">Last</a>
+        `;
     }
 
     function changePage(page) {
@@ -312,36 +316,6 @@
         renderPosts(page);
     }
 
-    function searchPosts() {
-        const query = document.getElementById('search').value.toLowerCase();
-        const filteredPosts = posts.filter(post => post.title.toLowerCase().includes(query) || post.content.toLowerCase().includes(query));
-
-        const postsContainer = document.getElementById('posts');
-        postsContainer.innerHTML = filteredPosts.map(post => `
-            <div class="post">
-                <img src="${post.image}" alt="${post.title}">
-                <div class="post-content">
-                    <div class="post-title">${post.title}</div>
-                    <div class="post-meta">Date: ${post.date} | Author: ${post.author}</div>
-                    <p>${post.content}</p>
-                    <a href="#" class="read-more">Read More</a>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function renderLatestPosts() {
-        const latestPostsContainer = document.getElementById('latest-posts');
-        latestPostsContainer.innerHTML += posts.slice(0, 5).map(post => `
-            <a href="#">${post.title}</a>
-        `).join('');
-    }
-
-    // Initialize page
-    renderPosts(currentPage);
-    renderPagination();
-    renderLatestPosts();
-</script>
-
-</body>
-</html>
+    function readMore(postIndex) {
+        const post = posts[postIndex];
+        const postsContainer = document.getElementBy
