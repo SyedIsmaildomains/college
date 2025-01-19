@@ -31,8 +31,6 @@
             padding: 10px 20px;
             background-color: #333;
             color: white;
-            position: relative;
-            z-index: 1000;
         }
         .logo {
             font-size: 1.5em;
@@ -62,13 +60,12 @@
             display: none;
             position: absolute;
             top: 100%;
-            left: 0;
+            right: 0;
             background-color: #444;
             padding: 10px;
             border-radius: 5px;
             width: 200px;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
         }
         .dropdown-content a {
             display: block;
@@ -80,16 +77,6 @@
         }
         .dropdown:hover .dropdown-content {
             display: block;
-        }
-        .dropdown-content {
-            right: 0;
-            left: auto;
-        }
-        @media (max-width: 768px) {
-            .dropdown-content {
-                left: 0;
-                right: auto;
-            }
         }
 
         /* Main Content */
@@ -200,10 +187,6 @@
             padding: 10px 20px;
             background-color: #333;
             color: white;
-            position: relative;
-            bottom: 0;
-            left: 0;
-            width: 100%;
         }
         footer a {
             color: white;
@@ -251,42 +234,25 @@
 </header>
 
 <div class="container">
-    <div class="main-content">
-        <div class="post">
-            <img src="https://via.placeholder.com/800x400" alt="Post Image">
-            <div class="post-content">
-                <div class="post-title">Post Title 1</div>
-                <div class="post-meta">Date: 2025-01-19 | Author: Syed Ismail</div>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur suscipit...</p>
-                <a href="#" class="read-more" rel="nofollow">Read More</a>
-            </div>
-        </div>
-
-        <!-- Repeat similar post blocks -->
-
-        <div class="pagination">
-            <a href="#">1</a>
-            <a href="#">2</a>
-            <a href="#">3</a>
-            <a href="#">Next</a>
-        </div>
+    <div class="main-content" id="posts">
+        <!-- Posts will be dynamically loaded here -->
     </div>
 
     <aside class="sidebar">
         <div class="search-box">
-            <input type="text" placeholder="Search...">
-            <button>Search</button>
+            <input type="text" id="search" placeholder="Search...">
+            <button onclick="searchPosts()">Search</button>
         </div>
 
-        <div class="latest-posts">
+        <div class="latest-posts" id="latest-posts">
             <h3>Latest Posts</h3>
-            <a href="#">Latest Post 1</a>
-            <a href="#">Latest Post 2</a>
-            <a href="#">Latest Post 3</a>
-            <a href="#">Latest Post 4</a>
-            <a href="#">Latest Post 5</a>
+            <!-- Latest posts will be dynamically loaded here -->
         </div>
     </aside>
+</div>
+
+<div class="pagination" id="pagination">
+    <!-- Pagination buttons will be dynamically loaded here -->
 </div>
 
 <footer>
@@ -299,6 +265,83 @@
         <a href="#">Disclaimer</a>
     </div>
 </footer>
+
+<script>
+    // Example posts data
+    const posts = Array.from({ length: 100 }, (_, i) => ({
+        title: `Post Title ${i + 1}`,
+        date: `2025-01-19`,
+        author: `Author ${i + 1}`,
+        content: `This is a brief description for post ${i + 1}.`,
+        image: `https://via.placeholder.com/800x400?text=Post+${i + 1}`
+    }));
+
+    const postsPerPage = 5;
+    let currentPage = 1;
+
+    function renderPosts(page) {
+        const start = (page - 1) * postsPerPage;
+        const end = start + postsPerPage;
+        const paginatedPosts = posts.slice(start, end);
+
+        const postsContainer = document.getElementById('posts');
+        postsContainer.innerHTML = paginatedPosts.map(post => `
+            <div class="post">
+                <img src="${post.image}" alt="${post.title}">
+                <div class="post-content">
+                    <div class="post-title">${post.title}</div>
+                    <div class="post-meta">Date: ${post.date} | Author: ${post.author}</div>
+                    <p>${post.content}</p>
+                    <a href="#" class="read-more">Read More</a>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderPagination() {
+        const totalPages = Math.ceil(posts.length / postsPerPage);
+        const paginationContainer = document.getElementById('pagination');
+
+        paginationContainer.innerHTML = Array.from({ length: totalPages }, (_, i) => `
+            <a href="#" onclick="changePage(${i + 1})">${i + 1}</a>
+        `).join('');
+    }
+
+    function changePage(page) {
+        currentPage = page;
+        renderPosts(page);
+    }
+
+    function searchPosts() {
+        const query = document.getElementById('search').value.toLowerCase();
+        const filteredPosts = posts.filter(post => post.title.toLowerCase().includes(query) || post.content.toLowerCase().includes(query));
+
+        const postsContainer = document.getElementById('posts');
+        postsContainer.innerHTML = filteredPosts.map(post => `
+            <div class="post">
+                <img src="${post.image}" alt="${post.title}">
+                <div class="post-content">
+                    <div class="post-title">${post.title}</div>
+                    <div class="post-meta">Date: ${post.date} | Author: ${post.author}</div>
+                    <p>${post.content}</p>
+                    <a href="#" class="read-more">Read More</a>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderLatestPosts() {
+        const latestPostsContainer = document.getElementById('latest-posts');
+        latestPostsContainer.innerHTML += posts.slice(0, 5).map(post => `
+            <a href="#">${post.title}</a>
+        `).join('');
+    }
+
+    // Initialize page
+    renderPosts(currentPage);
+    renderPagination();
+    renderLatestPosts();
+</script>
 
 </body>
 </html>
