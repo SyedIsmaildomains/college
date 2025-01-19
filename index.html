@@ -84,7 +84,6 @@
             display: flex;
             flex-wrap: wrap;
             margin: 20px;
-            min-height: 80vh;
         }
         .main-content {
             flex: 2;
@@ -210,7 +209,6 @@
     </style>
 </head>
 <body>
-
 <header>
     <div class="logo">JLC News</div>
     <nav>
@@ -265,19 +263,22 @@
         <a href="#">Disclaimer</a>
     </div>
 </footer>
-
-<script>
-    const posts = Array.from({ length: 100 }, (_, i) => ({
-        title: `Post Title ${i + 1}`,
-        date: `2025-01-19`,
-        author: `Author ${i + 1}`,
-        content: `This is the full content of post ${i + 1}. It contains more detailed information than the brief description.`,
-        brief: `This is a brief description for post ${i + 1}.`,
-        image: `https://via.placeholder.com/800x400?text=Post+${i + 1}`
-    }));
-
+    <script>
+    const posts = [];
     const postsPerPage = 5;
     let currentPage = 1;
+
+    // Generate Sample Data
+    for (let i = 1; i <= 100; i++) {
+        posts.push({
+            title: `Post Title ${i}`,
+            date: `2025-01-${String(i % 30 + 1).padStart(2, '0')}`,
+            author: `Author ${i}`,
+            content: `This is the full content of post ${i}. It contains more detailed information than the brief description.`,
+            brief: `This is a brief description for post ${i}.`,
+            image: `https://via.placeholder.com/800x400?text=Post+${i}`
+        });
+    }
 
     function renderPosts(page) {
         const start = (page - 1) * postsPerPage;
@@ -302,20 +303,88 @@
         const totalPages = Math.ceil(posts.length / postsPerPage);
         const paginationContainer = document.getElementById('pagination');
 
-        paginationContainer.innerHTML = `
-            <a href="#" onclick="changePage(1)">First</a>
-            ${Array.from({ length: totalPages }, (_, i) => `
-                <a href="#" onclick="changePage(${i + 1})">${i + 1}</a>
+        const paginationButtons = [];
+        if (currentPage > 1) {
+            paginationButtons.push(`<a href="#" onclick="changePage(${currentPage - 1})">Previous</a>`);
+        }
+        paginationButtons.push(
+            `<a href="#" onclick="changePage(1)">1</a> ...` +
+            `<a href="#" onclick="changePage(${totalPages})">${totalPages}</a>`
+        );
+        if (currentPage < totalPages) {
+            paginationButtons.push(`<a href="#" onclick="changePage(${currentPage + 1})">Next</a>`);
+        }
+
+        paginationContainer.innerHTML = paginationButtons.join('');
+    }
+
+    function renderLatestPosts() {
+        const latestPosts = posts.slice(-postsPerPage).reverse();
+        const latestPostsContainer = document.getElementById('latest-posts');
+        latestPostsContainer.innerHTML = `
+            <h3>Latest Posts</h3>
+            ${latestPosts.map(post => `
+                <a href="#" onclick="readMore(${posts.indexOf(post)})">${post.title}</a>
             `).join('')}
-            <a href="#" onclick="changePage(${totalPages})">Last</a>
         `;
     }
 
     function changePage(page) {
         currentPage = page;
         renderPosts(page);
+        renderPagination();
+    }
+
+    function searchPosts() {
+        const query = document.getElementById('search').value.toLowerCase();
+        const searchResults = posts.filter(post => 
+            post.title.toLowerCase().includes(query) || 
+            post.content.toLowerCase().includes(query)
+        );
+
+        const postsContainer = document.getElementById('posts');
+        postsContainer.innerHTML = searchResults.map(post => `
+            <div class="post">
+                <img src="${post.image}" alt="${post.title}">
+                <div class="post-content">
+                    <div class="post-title">${post.title}</div>
+                    <div class="post-meta">Date: ${post.date} | Author: ${post.author}</div>
+                    <p>${post.brief}</p>
+                    <button class="read-more" onclick="readMore(${posts.indexOf(post)})">Read More</button>
+                </div>
+            </div>
+        `).join('');
+
+        const paginationContainer = document.getElementById('pagination');
+        paginationContainer.innerHTML = `<p>${searchResults.length} results found.</p>`;
     }
 
     function readMore(postIndex) {
         const post = posts[postIndex];
-        const postsContainer = document.getElementBy
+        const postsContainer = document.getElementById('posts');
+        postsContainer.innerHTML = `
+            <div class="post">
+                <img src="${post.image}" alt="${post.title}">
+                <div class="post-content">
+                    <div class="post-title">${post.title}</div>
+                    <div class="post-meta">Date: ${post.date} | Author: ${post.author}</div>
+                    <p>${post.content}</p>
+                </div>
+            </div>
+            <button onclick="changePage(${currentPage})">Go Back</button>
+        `;
+        document.getElementById('pagination').innerHTML = '';
+    }
+
+    // Initialize the Page
+    function initialize() {
+        renderPosts(currentPage);
+        renderPagination();
+        renderLatestPosts();
+    }
+
+    window.onload = initialize;
+</script>
+
+</body>
+</html>
