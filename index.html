@@ -31,6 +31,8 @@
             padding: 10px 20px;
             background-color: #333;
             color: white;
+            position: relative;
+            z-index: 1000;
         }
         .logo {
             font-size: 1.5em;
@@ -60,12 +62,13 @@
             display: none;
             position: absolute;
             top: 100%;
-            right: 0;
+            left: 0;
             background-color: #444;
             padding: 10px;
             border-radius: 5px;
             width: 200px;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
         }
         .dropdown-content a {
             display: block;
@@ -78,12 +81,23 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
+        .dropdown-content {
+            right: 0;
+            left: auto;
+        }
+        @media (max-width: 768px) {
+            .dropdown-content {
+                left: 0;
+                right: auto;
+            }
+        }
 
         /* Main Content */
         .container {
             display: flex;
             flex-wrap: wrap;
             margin: 20px;
+            min-height: 80vh;
         }
         .main-content {
             flex: 2;
@@ -186,6 +200,10 @@
             padding: 10px 20px;
             background-color: #333;
             color: white;
+            position: relative;
+            bottom: 0;
+            left: 0;
+            width: 100%;
         }
         footer a {
             color: white;
@@ -209,6 +227,7 @@
     </style>
 </head>
 <body>
+
 <header>
     <div class="logo">JLC News</div>
     <nav>
@@ -232,25 +251,42 @@
 </header>
 
 <div class="container">
-    <div class="main-content" id="posts">
-        <!-- Posts will be dynamically loaded here -->
+    <div class="main-content">
+        <div class="post">
+            <img src="https://via.placeholder.com/800x400" alt="Post Image">
+            <div class="post-content">
+                <div class="post-title">Post Title 1</div>
+                <div class="post-meta">Date: 2025-01-19 | Author: Syed Ismail</div>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur suscipit...</p>
+                <a href="#" class="read-more" rel="nofollow">Read More</a>
+            </div>
+        </div>
+
+        <!-- Repeat similar post blocks -->
+
+        <div class="pagination">
+            <a href="#">1</a>
+            <a href="#">2</a>
+            <a href="#">3</a>
+            <a href="#">Next</a>
+        </div>
     </div>
 
     <aside class="sidebar">
         <div class="search-box">
-            <input type="text" id="search" placeholder="Search...">
-            <button onclick="searchPosts()">Search</button>
+            <input type="text" placeholder="Search...">
+            <button>Search</button>
         </div>
 
-        <div class="latest-posts" id="latest-posts">
+        <div class="latest-posts">
             <h3>Latest Posts</h3>
-            <!-- Latest posts will be dynamically loaded here -->
+            <a href="#">Latest Post 1</a>
+            <a href="#">Latest Post 2</a>
+            <a href="#">Latest Post 3</a>
+            <a href="#">Latest Post 4</a>
+            <a href="#">Latest Post 5</a>
         </div>
     </aside>
-</div>
-
-<div class="pagination" id="pagination">
-    <!-- Pagination buttons will be dynamically loaded here -->
 </div>
 
 <footer>
@@ -263,128 +299,6 @@
         <a href="#">Disclaimer</a>
     </div>
 </footer>
-    <script>
-    const posts = [];
-    const postsPerPage = 5;
-    let currentPage = 1;
-
-    // Generate Sample Data
-    for (let i = 1; i <= 100; i++) {
-        posts.push({
-            title: `Post Title ${i}`,
-            date: `2025-01-${String(i % 30 + 1).padStart(2, '0')}`,
-            author: `Author ${i}`,
-            content: `This is the full content of post ${i}. It contains more detailed information than the brief description.`,
-            brief: `This is a brief description for post ${i}.`,
-            image: `https://via.placeholder.com/800x400?text=Post+${i}`
-        });
-    }
-
-    function renderPosts(page) {
-        const start = (page - 1) * postsPerPage;
-        const end = start + postsPerPage;
-        const paginatedPosts = posts.slice(start, end);
-
-        const postsContainer = document.getElementById('posts');
-        postsContainer.innerHTML = paginatedPosts.map(post => `
-            <div class="post">
-                <img src="${post.image}" alt="${post.title}">
-                <div class="post-content">
-                    <div class="post-title">${post.title}</div>
-                    <div class="post-meta">Date: ${post.date} | Author: ${post.author}</div>
-                    <p>${post.brief}</p>
-                    <button class="read-more" onclick="readMore(${posts.indexOf(post)})">Read More</button>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function renderPagination() {
-        const totalPages = Math.ceil(posts.length / postsPerPage);
-        const paginationContainer = document.getElementById('pagination');
-
-        const paginationButtons = [];
-        if (currentPage > 1) {
-            paginationButtons.push(`<a href="#" onclick="changePage(${currentPage - 1})">Previous</a>`);
-        }
-        paginationButtons.push(
-            `<a href="#" onclick="changePage(1)">1</a> ...` +
-            `<a href="#" onclick="changePage(${totalPages})">${totalPages}</a>`
-        );
-        if (currentPage < totalPages) {
-            paginationButtons.push(`<a href="#" onclick="changePage(${currentPage + 1})">Next</a>`);
-        }
-
-        paginationContainer.innerHTML = paginationButtons.join('');
-    }
-
-    function renderLatestPosts() {
-        const latestPosts = posts.slice(-postsPerPage).reverse();
-        const latestPostsContainer = document.getElementById('latest-posts');
-        latestPostsContainer.innerHTML = `
-            <h3>Latest Posts</h3>
-            ${latestPosts.map(post => `
-                <a href="#" onclick="readMore(${posts.indexOf(post)})">${post.title}</a>
-            `).join('')}
-        `;
-    }
-
-    function changePage(page) {
-        currentPage = page;
-        renderPosts(page);
-        renderPagination();
-    }
-
-    function searchPosts() {
-        const query = document.getElementById('search').value.toLowerCase();
-        const searchResults = posts.filter(post => 
-            post.title.toLowerCase().includes(query) || 
-            post.content.toLowerCase().includes(query)
-        );
-
-        const postsContainer = document.getElementById('posts');
-        postsContainer.innerHTML = searchResults.map(post => `
-            <div class="post">
-                <img src="${post.image}" alt="${post.title}">
-                <div class="post-content">
-                    <div class="post-title">${post.title}</div>
-                    <div class="post-meta">Date: ${post.date} | Author: ${post.author}</div>
-                    <p>${post.brief}</p>
-                    <button class="read-more" onclick="readMore(${posts.indexOf(post)})">Read More</button>
-                </div>
-            </div>
-        `).join('');
-
-        const paginationContainer = document.getElementById('pagination');
-        paginationContainer.innerHTML = `<p>${searchResults.length} results found.</p>`;
-    }
-
-    function readMore(postIndex) {
-        const post = posts[postIndex];
-        const postsContainer = document.getElementById('posts');
-        postsContainer.innerHTML = `
-            <div class="post">
-                <img src="${post.image}" alt="${post.title}">
-                <div class="post-content">
-                    <div class="post-title">${post.title}</div>
-                    <div class="post-meta">Date: ${post.date} | Author: ${post.author}</div>
-                    <p>${post.content}</p>
-                </div>
-            </div>
-            <button onclick="changePage(${currentPage})">Go Back</button>
-        `;
-        document.getElementById('pagination').innerHTML = '';
-    }
-
-    // Initialize the Page
-    function initialize() {
-        renderPosts(currentPage);
-        renderPagination();
-        renderLatestPosts();
-    }
-
-    window.onload = initialize;
-</script>
 
 </body>
 </html>
